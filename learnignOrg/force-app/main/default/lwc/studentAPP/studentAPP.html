@@ -1,0 +1,21 @@
+<template>
+    <lightning-card title="Custom Object Records">
+        <div class="slds-var-m-around_medium">
+            <template if:true={records}>
+                <lightning-datatable
+                    key-field="Id"
+                    data={records}
+                    columns={columns}>
+                </lightning-datatable>
+            </template>
+            <template if:true={error}>
+                <div class="slds-text-color_error">
+                    {error}
+                </div>
+            </template>
+            <template if:true={isLoading}>
+                <lightning-spinner alternative-text="Loading" variant="brand"></lightning-spinner>
+            </template>
+        </div>
+    </lightning-card>
+</template>

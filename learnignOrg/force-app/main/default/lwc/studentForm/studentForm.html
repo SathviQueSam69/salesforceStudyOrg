@@ -1,0 +1,17 @@
+<template>
+    <lightning-card title="Create New Record">
+        <div class="slds-p-around_medium">
+            <lightning-input label="Name" value={record.Name} onchange={handleInputChange} data-field="Name"></lightning-input>
+            <lightning-input label="Age" value={record.Age__c} onchange={handleInputChange} data-field="Age__c"></lightning-input>
+            <lightning-input label="Phone" value={record.Phone__c} onchange={handleInputChange} data-field="Phone__c"></lightning-input>
+
+            <lightning-button label="Submit" variant="brand" onclick={handleSubmit}></lightning-button>
+
+            <template if:true={error}>
+                <div class="slds-text-color_error slds-m-top_medium">
+                    {error}
+                </div>
+            </template>
+        </div>
+    </lightning-card>
+</template>

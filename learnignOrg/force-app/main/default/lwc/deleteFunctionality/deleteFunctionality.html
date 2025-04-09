@@ -1,0 +1,44 @@
+<template>
+    <lightning-card title="Displaying Cards" icon-name="custom:custom14">
+        <div class="slds-var-p-around_medium">
+            <div class="slds-grid slds-wrap slds-gutters">
+                <template for:each={cardData} for:item="card">
+                    <div key={card.id} class="slds-col slds-size_1-of-1 slds-medium-size_1-of-2 slds-large-size_1-of-3 slds-var-m-bottom_medium">
+                        <lightning-card title={card.title} icon-name={card.iconName}>
+                            <div class="slds-p-around_medium">
+                                <p>{card.description}</p>
+                            </div>
+                            <div slot="footer">
+                                Card Footer {card.id}
+                            </div>
+                            <div slot="actions">
+                                <lightning-button
+                                    label="Delete"
+                                    variant="destructive"
+                                    icon-name="utility:delete"
+                                    icon-position="left"
+                                    data-id={card.id}
+                                    onclick={handleDeleteClick}>
+                                </lightning-button>
+                            </div>
+                        </lightning-card>
+                    </div>
+                </template>
+            </div>
+
+            <template if:false={hasCards}>
+                <div class="slds-align_absolute-center slds-var-m-vertical_large slds-text-align_center">
+                    <p>All cards have been deleted.</p>
+
+                    <div class="slds-var-m-top_medium">
+                        <lightning-button
+                            label="Create Last Deleted Card" variant="brand"                 icon-name="utility:add"
+                            icon-position="left"
+                            onclick={handleRecreateClick}
+                            disabled={isCreateDisabled}>    </lightning-button>
+                    </div>
+                     </div>
+            </template>
+        </div>
+    </lightning-card>
+</template>

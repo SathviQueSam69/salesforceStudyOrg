@@ -1,33 +1,44 @@
-name: Deploy to Salesforce Org
+name: Deploy Salesforce Metadata
 
 on:
   push:
     branches:
-      - main
+      - main # Or your main branch
+  workflow_dispatch: # Allows manual triggering of the workflow
 
 jobs:
   deploy:
-    name: Deploy Metadata to Salesforce
     runs-on: windows-latest
 
     steps:
       - name: Checkout Repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0 # Needed for calculating changes
 
       - name: Install Salesforce CLI
-        shell: powershell
         run: |
-          Invoke-WebRequest -Uri https://developer.salesforce.com/media/salesforce-cli/sfdx-windows-x64.exe -OutFile sfdx-installer.exe
-          Start-Process -FilePath sfdx-installer.exe -ArgumentList "/quiet" -Wait
-          sfdx --version
+          npm install -g sfdx-cli@latest
 
-      - name: Authorize Salesforce Org using Auth URL
+      - name: Authenticate with Salesforce
         run: |
-          $env:SFDX_AUTH_URL="${{ secrets.SFDX_AUTH_URL }}"
-          $env:SFDX_AUTH_URL | Out-File -FilePath auth-url.txt -Encoding ascii
-          sfdx auth:sfdxurl:store --sfdxurlfile auth-url.txt --setdefaultusername
-          Remove-Item auth-url.txt
+          sfdx auth:sfdxurl:store -f ./connection.txt
+      - name: Create Connection File
+        run: |
+          echo "SFDX_URL=sfdx://{(
+            'type':'WEB', \
+            'url':'${{ env.SF_URL }}', \
+            'username':'${{ secrets.SF_USERNAME }}', \
+            'password':'${{ secrets.SF_PASSWORD }}'\
+          )}" > connection.txt
+      - name: Deploy Metadata
+        run: |
+          sfdx force:source:deploy --manifest=./manifest/package.xml --target-org=sfdx-url.json --wait=10 --verbose
 
-      - name: Deploy Metadata to Salesforce
+      - name: Run destructive changes (if applicable)
+        if: ${{ github.event_name == 'push' }}
         run: |
-          sfdx force:source:deploy -p force-app --json --loglevel fatal
+          # Example: Deploy destructive changes if a destructiveChanges.xml exists
+          if [ -f "./manifest/destructiveChanges.xml" ]; then
+            sfdx force:source:deploy --manifest=./manifest/destructiveChanges.xml --target-org=sfdx-url.json --wait=10 --verbose
+          fi

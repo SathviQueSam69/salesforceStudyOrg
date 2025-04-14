@@ -1,0 +1,33 @@
+<template>
+    <lightning-card title="Faux Movie List">
+        <template if:true={movies}>
+            <template for:each={movies} for:item="movie">
+                <div key={movie.id} class="slds-m-around_medium slds-border_bottom">
+                    <div class="slds-grid slds-wrap slds-align_top">
+                        <div class="slds-col slds-size_1-of-4">
+                            <img class="moviePoster" src={movie.Poster} alt={movie.MovieTitle}>
+                        </div>
+                        <div class="slds-col slds-size_3-of-4">
+                            <p><strong>Title:</strong> {movie.MovieTitle}</p>
+                            <p><strong>Year:</strong> {movie.Released_Year}</p>
+                            <p><strong>Genre:</strong> {movie.Genre}</p>
+                            <p><strong>IMDB Rating:</strong> {movie.IMDB_Rating}</p>
+                            <p><strong>Director:</strong> {movie.Director}</p>
+                            <p><strong>Overview:</strong> {movie.Overview}</p>
+                        </div>
+                    </div>
+                </div>
+            </template>
+        </template>
+        <template if:true={error}>
+            <div class="slds-m-around_medium slds-text-color_error">
+                Error fetching movie data: {error}
+            </div>
+        </template>
+        <template if:false={movies}>
+            <div class="slds-m-around_medium">
+                Loading movie data...
+            </div>
+        </template>
+    </lightning-card>
+</template>

@@ -1,0 +1,28 @@
+<template>
+    <lightning-card>
+        <div class="slds-nav-horizontal slds-p-horizontal_medium slds-p-vertical_small">
+            <ul class="slds-grid">
+                <li class="slds-nav-horizontal__item slds-m-right_medium">
+                    <a href="#" class="slds-nav-horizontal__action" onclick={handleMoviesList} data-target-page="Home">
+                        Home
+                    </a>
+                </li>
+                <li class="slds-nav-horizontal__item slds-m-right_medium">
+                    <a href="#" class="slds-nav-horizontal__action" onclick={handleMoviesList} data-target-page="AccountsList">
+                        Movies
+                    </a>
+                </li>
+                <li class="slds-nav-horizontal__item slds-m-right_medium">
+                    <a href="#" class="slds-nav-horizontal__action" onclick={handleSeriesList} data-target-page="NewContact">
+                        Series
+                    </a>
+                </li>
+                <li class="slds-nav-horizontal__item slds-m-right_medium">
+                    <a href="#" class="slds-nav-horizontal__action" onclick={handleAnimesList} data-target-page="MyCustomPage">
+                        Animes
+                    </a>
+                </li>
+            </ul>
+        </div>
+    </lightning-card>
+</template>

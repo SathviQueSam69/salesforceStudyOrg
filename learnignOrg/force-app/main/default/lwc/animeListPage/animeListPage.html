@@ -1,0 +1,23 @@
+<template>
+    <lightning-card title="All Movies" icon-name="standard:list">
+        <div class="slds-var-p-around_medium">
+            <template if:true={movies.length}>
+                <lightning-datatable
+                    key-field="id"
+                    data={movies}
+                    columns={columns}
+                    hide-checkbox-column
+                    show-row-number-column>
+                </lightning-datatable>
+            </template>
+            <template if:false={movies.length}>
+                <p>No movies found.</p>
+            </template>
+        </div>
+
+        <div class="slds-var-p-around_medium slds-text-align_center">
+              Pagination Controls Placeholder
+         </div>
+
+    </lightning-card>
+</template>

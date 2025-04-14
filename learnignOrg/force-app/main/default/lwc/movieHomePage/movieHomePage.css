@@ -1,0 +1,36 @@
+.movie-tile {
+    border: 1px solid #d8dde6; /* SLDS border color */
+    border-radius: .25rem; /* SLDS border radius */
+    background-color: white;
+    transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+    height: 100%; /* Ensure tiles in the same row have same height */
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between; /* Pushes content */
+}
+
+.movie-tile:hover {
+    cursor: pointer;
+    transform: translateY(-3px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Add shadow on hover */
+    border-color: #1b96ff; /* Highlight border on hover */
+}
+
+.movie-poster {
+    max-width: 100%;
+    height: 200px; /* Fixed height for consistency */
+    object-fit: cover; /* Scale image nicely */
+    object-position: center; /* Center the image */
+    border-radius: .25rem .25rem 0 0; /* Rounded corners top */
+    display: block; /* Remove extra space below image */
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.movie-tile h2 {
+    margin-top: auto; /* Push title towards bottom if description is short */
+}
+
+.movie-tile p {
+    color: #54698d; /* SLDS text color */
+}

@@ -1,0 +1,49 @@
+name: nightly-tests
+
+on:
+ workflow_dispatch:
+ schedule:
+   - cron:  '0 0 * * *'
+
+jobs:
+  build:
+    runs-on: 
+      group: gps-github-runners
+    steps:
+      - uses: actions/checkout@v1
+      - name: Install Dependencies
+        run: npm install @salesforce/cli --global
+      - name: Authenticate QA
+        run: |
+          echo "${{ secrets.QA_SALESFORCE_JWT_SECRET_KEY }}" > server.key
+          sfdx org login jwt --client-id ${{ secrets.QA_SALESFORCE_CONSUMER_KEY }} --jwt-key-file server.key --username ${{ vars.QA_SALESFORCE_USERNAME}} --alias=acpqa --instance-url https://test.salesforce.com
+      - name: 'Run Nightly Tests'
+        run: |            
+            prefix="NP_"
+            sigFlexPrefix="lm_"
+            suffix="Test"
+
+            echo "Extracting test classes matching common pattern ..."
+            echo ""
+            echo "======"
+            echo ""
+
+            TEST_CLASSES=$(ls force-app/main/default/classes | grep -x "$prefix.*$suffix\.cls\|$sigFlexPrefix.*$suffix\.cls" | sed "s/.cls//" | sed 'H;1h;$!d;x;y/\n/,/')
+            testCommand="sfdx apex run test -o acpqa --class-names "$TEST_CLASSES" --result-format human --code-coverage --detailed-coverage"
+
+            if [[ ! $TEST_CLASSES == *"$prefix"* ]]; then
+                echo "No file found matching criteria ! Aborting..."
+                echo "\tHint: Check setup (prefix=[$prefix], suffix=[$suffix])"
+                return 1
+            fi
+
+            echo "Executing Test Command ..."
+            echo ""
+            echo "======"
+            echo ""
+            echo $testCommand
+            echo ""
+            echo "======"
+            echo ""
+                $testCommand
+      

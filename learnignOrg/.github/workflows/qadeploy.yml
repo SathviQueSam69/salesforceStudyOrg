@@ -1,0 +1,19 @@
+name: qadeploy
+
+on: workflow_dispatch
+
+jobs:
+  build:
+    runs-on: 
+      group: gps-github-runners
+    if: github.ref == 'refs/heads/develop'
+    steps:
+      - uses: actions/checkout@v1
+      - name: Install Dependencies
+        run: npm install @salesforce/cli --global
+      - name: Authenticate QA
+        run: |
+          echo "${{ secrets.QA_SALESFORCE_JWT_SECRET_KEY }}" > server.key
+          sfdx force:auth:jwt:grant --clientid ${{ secrets.QA_SALESFORCE_CONSUMER_KEY }} --jwtkeyfile server.key --username ${{ vars.QA_SALESFORCE_USERNAME}} --setalias=acpqa --instanceurl https://test.salesforce.com
+      - name: Deploy
+        run: sf project deploy start --test-level NoTestRun -o acpqa -d ./force-app

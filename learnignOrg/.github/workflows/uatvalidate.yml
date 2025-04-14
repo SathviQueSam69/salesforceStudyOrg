@@ -1,0 +1,24 @@
+name: uatvalidate
+
+on:
+  workflow_dispatch:
+  pull_request:
+    branches: [uat]
+    types: [opened, edited, synchronize, reopened]
+
+jobs:
+  build:
+    runs-on: 
+      group: gps-github-runners
+    steps:
+      - uses: actions/checkout@v1
+      - name: Install Dependencies
+        run: npm install @salesforce/cli --global
+      - name: Authenticate UAT
+        run: |
+          echo "${{ secrets.UAT_SALESFORCE_JWT_SECRET_KEY }}" > server.key
+          sfdx force:auth:jwt:grant --clientid ${{ secrets.UAT_SALESFORCE_CONSUMER_KEY }} --jwtkeyfile server.key --username ${{ vars.UAT_SALESFORCE_USERNAME}} --setalias=acpuatfc --instanceurl https://test.salesforce.com
+      - name: Validate
+        run: |
+          TEST_CLASSES=$(ls force-app/main/default/classes | grep -x "NP_.*Test\.cls\|DM_.*Test\.cls\|lm_.*Test\.cls\|OneSpan.*Test\.cls\|IVI_.*Test\.cls" | sed "s/.cls//" | sed 'H;1h;$!d;x;y/\n/ /')
+          sf project deploy start --dry-run --test-level RunSpecifiedTests --tests $TEST_CLASSES -o acpuatfc -d ./force-app

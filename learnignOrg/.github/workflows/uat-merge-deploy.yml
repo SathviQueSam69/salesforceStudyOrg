@@ -1,0 +1,78 @@
+name: uat-merge-deploy
+
+on:
+  push:
+    branches:
+      - uat
+
+jobs:
+  build:
+    runs-on: 
+      group: gps-github-runners
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          fetch-depth: 2
+      - name: Install Dependencies
+        run: npm install @salesforce/cli --global
+
+      - name: Install Salesforce SGD Plugin
+        run: |
+          echo y | sf plugins install sfdx-git-delta    
+        
+      - name: Authenticate UAT
+        run: |
+          echo "${{ secrets.UAT_SALESFORCE_JWT_SECRET_KEY }}" > server.key
+          sfdx force:auth:jwt:grant --clientid ${{ secrets.UAT_SALESFORCE_CONSUMER_KEY }} --jwtkeyfile server.key --username ${{ vars.UAT_SALESFORCE_USERNAME}} --setalias=acpuatfc --instanceurl https://test.salesforce.com
+
+      - name: Create new delta_package directory
+        run: |
+            mkdir delta_package
+            echo "New delta_package directory created"      
+
+      - name: Get Previous Commit Hash
+        id: previous_commit
+        run: |
+          PREVIOUS_COMMIT=$(git rev-parse HEAD~1)
+          echo "Previous commit hash: $PREVIOUS_COMMIT"
+          echo "previous_commit=$PREVIOUS_COMMIT" >> $GITHUB_OUTPUT
+
+      - name: Get Current Commit Hash (HEAD)
+        id: current_commit
+        run: |
+          CURRENT_COMMIT=$(git rev-parse HEAD)
+          echo "Current commit hash: $CURRENT_COMMIT"
+          echo "current_commit=$CURRENT_COMMIT" >> $GITHUB_OUTPUT
+
+      - name: Generate Delta Folder Between Previous and Current Commit
+        run: |
+          sf sgd source delta --from ${{ steps.previous_commit.outputs.previous_commit }} --to ${{ steps.current_commit.outputs.current_commit }} --output-dir "delta_package" --generate-delta
+          echo "Delta generation complete."
+
+      - name: Check if Delta Package Exists
+        id: check_delta
+        run: |
+          if [ -d "delta_package/force-app" ]; then
+            echo "delta_exists=true" >> $GITHUB_OUTPUT
+          else
+            echo "delta_exists=false" >> $GITHUB_OUTPUT
+          fi
+
+      - name: No Delta package found
+        if: steps.check_delta.outputs.delta_exists == 'false'
+        run: echo "No delta package found. Skipping deployment"
+
+      - name: Echo Delta package If exists
+        if: steps.check_delta.outputs.delta_exists == 'true'
+        run: |
+          echo "Contents of delta_package directory:"
+          cat delta_package/package/package.xml
+
+      - name: Deploy only Delta Exists
+        if: steps.check_delta.outputs.delta_exists == 'true'
+        run: sf project deploy start --test-level NoTestRun -o acpuatfc -d ./delta_package/force-app
+
+      - name: Cleanup delta_package
+        run: |
+          rm -rf delta_package
+          ls -ld delta_package || echo "delta_package successfully removed"

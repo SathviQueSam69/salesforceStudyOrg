@@ -1,0 +1,67 @@
+name: Scan Code
+
+on:
+  workflow_dispatch:
+  # pull_request:
+  #   types: [opened, edited, synchronize, reopened]
+  #   branches: [ develop, uat, main ]
+  #   paths:
+  #     - 'force-app/**'
+
+jobs:
+    scan-code:
+      name: 'Scan code'
+      runs-on: 
+        group: gps-github-runners
+      env:
+          SFDX_CLI_VERSION: ${{secrets.SFDX_CLI_VERSION}}
+      steps:
+          - name: 'Checkout source code'
+            uses: actions/checkout@v1
+
+          - name: Install Dependencies
+            run: npm install @salesforce/cli --global
+
+          - name: 'Install sfdx plugin'
+            run: 'sfdx plugins:install @salesforce/sfdx-scanner'
+
+          - name: 'Install node modules'
+            run: 'npm install'
+
+          - name: 'Run linter'
+            run: 'npm run lint'
+
+          - name: 'Run scanner'
+            id: add-rule
+            run: 'sfdx scanner rule add --language {apex} --path "B2BLERuleset.xml"'
+
+          - name: 'Run scanner'
+            id: scan
+            run: |
+              sfdx scanner:run --target '**/*.cls' -o scanresult.json
+
+          - name: Archive Scanresults
+            uses: actions/upload-artifact@v4
+            id: artifact-upload-step
+            with:
+                name: CodeAnalysis-Results
+                path: scanresult.json
+
+          - name: 'Comment result'
+            uses: actions/github-script@v3
+            if: hashFiles('scanresult.json') != ''
+            with:
+                github-token: ${{secrets.GITHUB_TOKEN}}
+                script: |
+                    let scanresult = require(`${process.env.GITHUB_WORKSPACE}/scanresult.json`)
+                    if(context.issue.number){
+                      if(scanresult){
+                        github.issues.createComment({
+                          issue_number: context.issue.number,
+                          owner: context.repo.owner,
+                          repo: context.repo.repo,
+                          body: `> [!WARNING] \n > 🤖 We've analyzed your code. Please review the results in the report: ${{ steps.artifact-upload-step.outputs.artifact-url }}`,
+                          path: `${{ steps.artifact-upload-step.outputs.artifact-url }}`
+                        })
+                      }
+                    }

@@ -1,0 +1,19 @@
+name: uatdeploy
+
+on: workflow_dispatch
+
+jobs:
+  build:
+    runs-on: 
+      group: gps-github-runners
+    if: github.ref == 'refs/heads/uat'
+    steps:
+      - uses: actions/checkout@v1
+      - name: Install Dependencies
+        run: npm install @salesforce/cli --global
+      - name: Authenticate UAT
+        run: |
+          echo "${{ secrets.UAT_SALESFORCE_JWT_SECRET_KEY }}" > server.key
+          sfdx force:auth:jwt:grant --clientid ${{ secrets.UAT_SALESFORCE_CONSUMER_KEY }} --jwtkeyfile server.key --username ${{ vars.UAT_SALESFORCE_USERNAME}} --setalias=acpuatfc --instanceurl https://test.salesforce.com
+      - name: Deploy
+        run: sf project deploy start --test-level NoTestRun -o acpuatfc -d ./force-app

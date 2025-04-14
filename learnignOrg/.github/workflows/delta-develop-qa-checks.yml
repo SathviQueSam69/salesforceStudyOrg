@@ -1,0 +1,55 @@
+name: delta-develop-qa-validate
+
+on:
+  workflow_dispatch:
+  pull_request:
+    branches: [develop]
+    types: [opened, edited, synchronize, reopened]
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: 
+      group: gps-github-runners
+    steps:
+      - uses: actions/checkout@v2
+      - name: Install Dependencies
+        run: npm install @salesforce/cli --global
+      - name: Install Salesforce SGD Plugin
+        run: |
+          echo y | sf plugins install sfdx-git-delta
+      - name: Create new delta_package directory
+        run: |
+            mkdir delta_package
+            echo "New delta_package directory created"
+      - name: Authenticate QA
+        run: |
+          echo "${{ secrets.QA_SALESFORCE_JWT_SECRET_KEY }}" > server.key
+          sfdx force:auth:jwt:grant --clientid ${{ secrets.QA_SALESFORCE_CONSUMER_KEY }} --jwtkeyfile server.key --username ${{ vars.QA_SALESFORCE_USERNAME}} --setalias=acpqa --instanceurl https://test.salesforce.com
+      - name: Fetch Source and Target Branch SHA
+        run: |
+          git fetch origin
+          SOURCE_BRANCH_SHA=$(git rev-parse origin/${{ github.head_ref }})
+          TARGET_BRANCH_SHA=$(git rev-parse origin/${{ github.base_ref }})
+          echo "Source branch SHA: $SOURCE_BRANCH_SHA"
+          echo "Target branch SHA: $TARGET_BRANCH_SHA"
+          echo "Generating deployment delta..." 
+          echo "Comparing from branch: $TARGET_BRANCH_SHA"  
+          echo "Comparing to branch: $SOURCE_BRANCH_SHA"  
+          sf sgd source delta --from $TARGET_BRANCH_SHA --to $SOURCE_BRANCH_SHA --output-dir "delta_package" --generate-delta
+          echo "Delta generation complete."
+      - name: Echo delta_package
+        run: |
+          echo "Contents of delta_package directory:"
+          cat delta_package/package/package.xml
+      - name: Validate against QA
+        run: |
+          TEST_CLASSES=$(ls force-app/main/default/classes | grep -x "NP_.*Test\.cls\|DM_.*Test\.cls\|lm_.*Test\.cls\|OneSpan.*Test\.cls\|IVI_.*Test\.cls" | sed "s/.cls//" | sed 'H;1h;$!d;x;y/\n/ /')
+          sf project deploy start --dry-run --test-level RunSpecifiedTests --tests $TEST_CLASSES -o acpqa -d delta_package/force-app
+          
+      - name: Cleanup delta_package
+        run: |
+          rm -rf delta_package
+          ls -ld delta_package || echo "delta_package successfully removed"

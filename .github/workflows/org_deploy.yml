@@ -1,0 +1,33 @@
+name: Deploy to Salesforce Org
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    name: Deploy Metadata to Salesforce
+    runs-on: windows-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v3
+
+      - name: Install Salesforce CLI
+        shell: powershell
+        run: |
+          Invoke-WebRequest -Uri https://developer.salesforce.com/media/salesforce-cli/sfdx-windows-x64.exe -OutFile sfdx-installer.exe
+          Start-Process -FilePath sfdx-installer.exe -ArgumentList "/quiet" -Wait
+          sfdx --version
+
+      - name: Authorize Salesforce Org using Auth URL
+        run: |
+          $env:SFDX_AUTH_URL="${{ secrets.SFDX_AUTH_URL }}"
+          $env:SFDX_AUTH_URL | Out-File -FilePath auth-url.txt -Encoding ascii
+          sfdx auth:sfdxurl:store --sfdxurlfile auth-url.txt --setdefaultusername
+          Remove-Item auth-url.txt
+
+      - name: Deploy Metadata to Salesforce
+        run: |
+          sfdx force:source:deploy -p force-app --json --loglevel fatal

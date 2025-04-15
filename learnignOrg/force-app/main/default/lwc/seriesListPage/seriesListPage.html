@@ -1,15 +1,16 @@
 <template>
-    <lightning-card title="Faux Movie List">
-        <template if:true={movies}>
-            <template for:each={movies} for:item="movie">
-                <div key={series.id} class="slds-m-around_medium slds-border_bottom">
+    <lightning-card title="Series List">
+        <template if:true={series}>
+            <template for:each={series} for:item="show">
+                <div key={show.id} class="slds-m-around_medium slds-border_bottom">
                     <div class="slds-grid slds-wrap slds-align_top">
-                        <div class="slds-col slds-size_3-of-4">
-                            <p><strong>Title:</strong> {series.title}</p>
-                            <p><strong>Year:</strong> {series.release_year}</p>
-                            <p><strong>IMDB Rating:</strong> {series.rating}</p>
-                            <p><strong>Director:</strong> {series.director}</p>
-                            <p><strong>Overview:</strong> {series.description}</p>
+                        <div class="slds-grid slds-wrap slds-align_top">
+                            <div class="slds-col slds-size_3-of-4">
+                                <p><strong>Title:</strong> {show.name}</p>
+                                <p><strong>Year:</strong> {show.genres}</p>
+                                <p><strong>IMDB Rating:</strong> {show.created_by}</p>
+                                <p><strong>Director:</strong> {show.overview}</p>
+                            </div>
                         </div>
                     </div>
                 </div>

@@ -1,23 +1,33 @@
 <template>
-    <lightning-card title="All Movies" icon-name="standard:list">
-        <div class="slds-var-p-around_medium">
-            <template if:true={movies.length}>
-                <lightning-datatable
-                    key-field="id"
-                    data={movies}
-                    columns={columns}
-                    hide-checkbox-column
-                    show-row-number-column>
-                </lightning-datatable>
+    <lightning-card title="Animes List">
+        <template if:true={animes}>
+            <template for:each={animes} for:item="anime">
+                <div key={anime.id} class="slds-m-around_medium slds-border_bottom">
+                    <div class="slds-grid slds-wrap slds-align_top">
+                        <div class="slds-col slds-size_1-of-4">
+                            <img class="" src={anime.poster} alt={anime.title}>
+                        </div>
+                        <div class="slds-col slds-size_3-of-4">
+                            <p><strong>Title:</strong> {anime.title}</p>
+                            <p><strong>Year:</strong> {anime.year}</p>
+                            <p><strong>Genre:</strong> {anime.genres}</p>
+                            <p><strong>IMDB Rating:</strong> {anime.rating}</p>
+                            <p><strong>Episodes:</strong> {anime.episodes}</p>
+                            <p><strong>Overview:</strong> {anime.synopsis}</p>
+                        </div>
+                    </div>
+                </div>
             </template>
-            <template if:false={movies.length}>
-                <p>No movies found.</p>
-            </template>
-        </div>
-
-        <div class="slds-var-p-around_medium slds-text-align_center">
-              Pagination Controls Placeholder
-         </div>
-
+        </template>
+        <template if:true={error}>
+            <div class="slds-m-around_medium slds-text-color_error">
+                Error fetching movie data: {error}
+            </div>
+        </template>
+        <template if:false={movies}>
+            <div class="slds-m-around_medium">
+                Loading movie data...
+            </div>
+        </template>
     </lightning-card>
 </template>

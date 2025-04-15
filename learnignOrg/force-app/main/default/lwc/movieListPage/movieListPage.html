@@ -1,11 +1,11 @@
 <template>
-    <lightning-card title="Faux Movie List">
+    <lightning-card title="Movies List">
         <template if:true={movies}>
             <template for:each={movies} for:item="movie">
                 <div key={movie.id} class="slds-m-around_medium slds-border_bottom">
                     <div class="slds-grid slds-wrap slds-align_top">
                         <div class="slds-col slds-size_1-of-4">
-                            <img class="moviePoster" src={movie.Poster} alt={movie.MovieTitle}>
+                            <img class="moviePoster" src='https://m.media-amazon.com/images/M/MV5BZTYwZWQ4ZTQtZWU0MS00N2YwLWEzMDItZWFkZWY0MWVjODVhXkEyXkFqcGdeQXVyNjU0OTQ0OTY@._V1_UX67_CR0,0,67,98_AL_.jpg' alt={movie.MovieTitle}>
                         </div>
                         <div class="slds-col slds-size_3-of-4">
                             <p><strong>Title:</strong> {movie.MovieTitle}</p>

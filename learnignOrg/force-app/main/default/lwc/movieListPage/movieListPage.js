@@ -11,6 +11,7 @@ export default class MovieListPage extends LightningElement {
             this.movies = data;
             this.error = undefined;
             console.log('Movies:', data);
+            console.log('poster:', data[0].Poster);
         } else if (error) {
             this.error = error;
             this.movies = undefined;

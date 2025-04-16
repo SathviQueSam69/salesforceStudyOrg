@@ -1,7 +1,8 @@
-<template>
+<!-- <template>
+
     <lightning-card title="Movies List">
-        <template if:true={movies}>
-            <template for:each={movies} for:item="movie">
+        <template if:true={paginatedRecords}>
+            <template for:each={paginatedRecords} for:item="movie">
                 <div key={movie.id} class="slds-m-around_medium slds-border_bottom">
                     <div class="slds-grid slds-wrap slds-align_top">
                         <div class="slds-col slds-size_1-of-4">
@@ -29,5 +30,46 @@
                 Loading movie data...
             </div>
         </template>
+
+        <div class="slds-m-top_medium slds-align_absolute-center">
+            <lightning-button label="Previous" onclick={handlePrev}></lightning-button>
+            <span class="slds-m-horizontal_medium">Page {currentPage} of {totalPages}</span>
+            <lightning-button label="Next" onclick={handleNext}></lightning-button>
+        </div>
+    </lightning-card>
+</template> -->
+
+<template>
+    <lightning-card title="Movies List">
+        <template if:true={paginatedRecords}>
+            <template for:each={paginatedRecords} for:item="movie">
+                <div key={movie.id} class="slds-m-around_medium slds-border_bottom">
+                    <div class="slds-grid slds-wrap slds-align_top">
+                        <div class="slds-col slds-size_3-of-4">
+                            <p><strong>Title:</strong> {movie.Name}</p>
+                            <p><strong>Year:</strong> {movie.Year__c}</p>
+                            <p><strong>Genre:</strong> {movie.Genre__c}</p>
+                            <p><strong>Overview:</strong> {movie.Description__c}</p>
+                        </div>
+                    </div>
+                </div>
+            </template>
+        </template>
+        <template if:true={error}>
+            <div class="slds-m-around_medium slds-text-color_error">
+                Error fetching movie data: {error}
+            </div>
+        </template>
+        <template if:false={movies}>
+            <div class="slds-m-around_medium">
+                Loading movie data...
+            </div>
+        </template>
+
+        <div class="slds-m-top_medium slds-align_absolute-center">
+            <lightning-button label="Previous" onclick={handlePrev}></lightning-button>
+            <span class="slds-m-horizontal_medium">Page {currentPage} of {totalPages}</span>
+            <lightning-button label="Next" onclick={handleNext}></lightning-button>
+        </div>
     </lightning-card>
 </template>

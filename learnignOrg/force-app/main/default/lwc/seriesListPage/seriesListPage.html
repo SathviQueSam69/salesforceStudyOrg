@@ -1,15 +1,15 @@
 <template>
     <lightning-card title="Series List">
-        <template if:true={series}>
-            <template for:each={series} for:item="show">
+        <template if:true={paginatedRecords}>
+            <template for:each={paginatedRecords} for:item="show">
                 <div key={show.id} class="slds-m-around_medium slds-border_bottom">
                     <div class="slds-grid slds-wrap slds-align_top">
                         <div class="slds-grid slds-wrap slds-align_top">
                             <div class="slds-col slds-size_3-of-4">
-                                <p><strong>Title:</strong> {show.name}</p>
-                                <p><strong>Year:</strong> {show.genres}</p>
-                                <p><strong>IMDB Rating:</strong> {show.created_by}</p>
-                                <p><strong>Director:</strong> {show.overview}</p>
+                                <p><strong>Title:</strong> {show.Name}</p>
+                                <p><strong>Year:</strong> {show.genres__c}</p>
+                                <p><strong>IMDB Rating:</strong> {show.created_by__c}</p>
+                                <p><strong>Director:</strong> {show.overview__c}</p>
                             </div>
                         </div>
                     </div>
@@ -26,5 +26,11 @@
                 Loading movie data...
             </div>
         </template>
+
+        <div class="slds-m-top_medium slds-align_absolute-center">
+            <lightning-button label="Previous" onclick={handlePrev}></lightning-button>
+            <span class="slds-m-horizontal_medium">Page {currentPage} of {totalPages}</span>
+            <lightning-button label="Next" onclick={handleNext}></lightning-button>
+        </div>
     </lightning-card>
 </template>

@@ -1,7 +1,7 @@
-<template>
+<!-- <template>
     <lightning-card title="Animes List">
-        <template if:true={animes}>
-            <template for:each={animes} for:item="anime">
+        <template if:true={paginatedRecords}>
+            <template for:each={paginatedRecords} for:item="anime">
                 <div key={anime.id} class="slds-m-around_medium slds-border_bottom">
                     <div class="slds-grid slds-wrap slds-align_top">
                         <div class="slds-col slds-size_1-of-4">
@@ -29,5 +29,57 @@
                 Loading movie data...
             </div>
         </template>
+
+        <div class="slds-m-top_medium slds-align_absolute-center">
+            <lightning-button label="Previous" onclick={handlePrev}></lightning-button>
+            <span class="slds-m-horizontal_medium">Page {currentPage} of {totalPages}</span>
+            <lightning-button label="Next" onclick={handleNext}></lightning-button>
+        </div>
+    </lightning-card>
+</template> -->
+
+<!-- Fetching Records using Objects -->
+<template>
+    <lightning-card title="Animes List">
+        <template if:true={paginatedRecords}>
+            <div class="slds-grid">
+                <template for:each={paginatedRecords} for:item="anime">
+                    <div key={anime.id} class="slds-m-around_medium slds-border_bottom cardContainer">
+
+                        <div
+                            class="slds-col slds-p-around_small">
+                            <!-- <div class="">
+                                <img class="" src={anime.poster__c} alt={anime.title}>
+                            </div> -->
+                            <div class="">
+                                <p><strong>Title:</strong> {anime.Name}</p>
+                                <p><strong>Year:</strong> {anime.year__c}</p>
+                                <p><strong>Genre:</strong> {anime.genre__c}</p>
+                                <p><strong>IMDB Rating:</strong> {anime.rating__c}</p>
+                                <p><strong>Episodes:</strong> {anime.episodes__c}</p>
+                                <p class="wrapText"><strong>Overview:</strong> {anime.overview__c}</p>
+                            </div>
+                        </div>
+                    </div>
+                </template>
+            </div>
+
+        </template>
+        <template if:true={error}>
+            <div class="slds-m-around_medium slds-text-color_error">
+                Error fetching movie data: {error}
+            </div>
+        </template>
+        <template if:false={movies}>
+            <div class="slds-m-around_medium">
+                Loading movie data...
+            </div>
+        </template>
+
+        <div class="slds-m-top_medium slds-align_absolute-center">
+            <lightning-button label="Previous" onclick={handlePrev}></lightning-button>
+            <span class="slds-m-horizontal_medium">Page {currentPage} of {totalPages}</span>
+            <lightning-button label="Next" onclick={handleNext}></lightning-button>
+        </div>
     </lightning-card>
 </template>

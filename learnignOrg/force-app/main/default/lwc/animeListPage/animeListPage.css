@@ -1,0 +1,7 @@
+.wrapText{
+    white-space: normal; 
+ word-wrap: break-word; 
+}
+.cardContainer{
+    width: 100%;
+}
